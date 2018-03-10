@@ -1,6 +1,6 @@
 'use strict'
 
-const debug = require('debug')('platziverse:db:setup') // Para tener mensajes de error, siempre y cuando se tenga un namespace configurado: platziverse/db/setup.js = platziverse:db:setup
+const debug = require('debug')('platziverse:db:setup') // Para tener mensajes de error a colores con el strign "platziverse:db:setup"
 const inquirer = require('inquirer') // Para añadir prompts
 const chalk = require('chalk') // Para dar colores, aquí usado para darle colores a los errores
 const db = require('./') // lo mismo que './index.js'
