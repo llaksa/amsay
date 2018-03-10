@@ -1,0 +1,38 @@
+{
+  "name": "platziverse-db",
+  "version": "1.0.0",
+  "description": "A Simple IoT Platform - DB Module, nyc es el encargado de ejecutar los test de avaJS, y nos dice qué porcentaje del código está siendo cubierto, sinon nos permite crear objetos falsos (respecto a Agent y Metric) para hacer pruebas en la app (sin usar unas pruebas que tiene el mismo sequelize)",
+  "main": "index.js",
+  "scripts": {
+    "test": "DEBUG=platziverse:* nyc --reportr-dir=coverage --reporter=lcov ava tests/ --verbose",
+    "setup": "DEBUG=platziverse:* node setup.js",
+    "lint": "standard"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/platzi/platziverse.git"
+  },
+  "author": "Julian Duque <julianduquej@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/llaksa/platziverse/issues"
+  },
+  "homepage": "https://github.com/llaksa/platziverse#readme",
+  "devDependencies": {
+    "ava": "^0.25.0",
+    "nyc": "^11.4.1",
+    "proxyquire": "^2.0.0",
+    "sinon": "^4.4.2",
+    "sqlite3": "^3.1.13",
+    "standard": "^10.0.3"
+  },
+  "dependencies": {
+    "chalk": "^2.1.0",
+    "debug": "^2.6.8",
+    "defaults": "^1.0.3",
+    "inquirer": "^3.2.1",
+    "pg": "^7.1.0",
+    "pg-hstore": "^2.3.2",
+    "sequelize": "^4.4.2"
+  }
+}

@@ -1,0 +1,28 @@
+* platziverse-db
+
+*** Usage
+
+#+begin_src js
+const setupDatabase = require(`platziverse-db`)
+
+setupDatabase(config).then(db => {
+  const {Agent, Metric} = db // guardando db.Agent y db.Metric en las constantes Agent y Metric, respetivamente
+}).catch(err => console.log(err))
+#+end_src
+
+Estando en la raíz del módulo, no deberíamos poder correr el comando:
+
+DB_PASS='foo' npm run setup 
+
+para eso, debemos hacer lo siguiente:
+
+sudo vim /etc/postgresql/9.6/main/pg_hba.conf
+
+Como hay una línea donde 1270.0.0.1 tiene un método "trust", lo que significa que no va a pedir contraseña.
+Por lo que debemos cambiar "trust" a "password"
+
+Usuarios Debian:
+
+Archivo ph_hba.conf: /etc/postgresql/your.installed.version/main/pg_hba.conf **
+Comando para reiniciar postgres: sudo service postgresql restart
+Cambiar todo lo que diga peer o md5 a passowrd. Para ver todos los métodos de autenticación como trust, password, peer, md5 … : https://www.postgresql.org/docs/9.1/static/auth-methods.html
