@@ -98,6 +98,11 @@ test.beforeEach(async () => {
     })
 
     db = await setupDatabase(config)
+
+    console.log('WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW')
+    console.log(AgentStub)
+    console.log(db)
+    console.log('WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW')
 })
 
 test.afterEach(t => {
