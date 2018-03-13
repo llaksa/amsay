@@ -64,6 +64,8 @@ test.beforeEach(async () => {
     db = await setupDatabase(config)
     */
 
+    // AQUÍ SE CREARÁN LOS MÉTODOS FAKE PARA AgentStub y MetricStub, que son reemplazo fake de agentModel y metricModel
+
     // con proxyquire:
     sandbox = sinon.sandbox.create()
     
@@ -92,17 +94,24 @@ test.beforeEach(async () => {
     // Model update Stub
     AgentStub.update.withArgs(single, uuidArgs).returns(Promise.resolve(single))
 
-    const setupDatabase = proxyquire('../', { // cuando se llame a '../index.js'
-        './models/agent': () => AgentStub, // en lugar de devolver la función exportada de agent.js, devuelve el objeto AgentStub
-        './models/metric': () => MetricStub // en lugar de devolver la función exportada de metric.js, devuelve el objeto MetricStub
+    const setupDatabase = proxyquire('../', { // cuando se llame a '../index.js' se envía una variable "config", además:
+        './models/agent': () => AgentStub, // AgentModel-Stub: en lugar de devolver la función exportada de agent.js, devuelve el objeto AgentStub
+        './models/metric': () => MetricStub // MetricModel-Stub: en lugar de devolver la función exportada de metric.js, devuelve el objeto MetricStub
     })
+    /* gracias a agentStub y metricStub, tendremos reemplazos fake de agentModel y metricModel, a los que luego 
+    se les pasará la configuración "conf" para obtener también otros reemplazos fake para Agent y Metric. Esto
+    ocasionará que index.js devuelva una "db" fake: 
+    { Agent: 
+        { createOrUpdate: ... , 
+          etc, ...
+        },
+      Metric:
+        { create: ... ,
+          etc, ...
+        }
+    } */
 
     db = await setupDatabase(config)
-
-    console.log('WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW')
-    console.log(AgentStub)
-    console.log(db)
-    console.log('WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW')
 })
 
 test.afterEach(t => {
@@ -121,7 +130,7 @@ test.serial('Setup', t => {
 })
 
 test.serial('Agent#findById', async t => {
-    let agent = await db.Agent.findById(id)
+    let agent = await db.Agent.findById(id) // agent obtenido de 
 
     t.true(AgentStub.findById.called, 'findById should be called on model')
     t.true(AgentStub.findById.calledOnce, 'findById should be called once')
