@@ -4,9 +4,10 @@ const debug = require('debug')('platziverse:db:setup') // Para tener mensajes de
 const inquirer = require('inquirer') // Para añadir prompts
 const chalk = require('chalk') // Para dar colores, aquí usado para darle colores a los errores
 const db = require('./') // lo mismo que './index.js'
-const config = require('../config')
+const configSetUp = require('../defaultConfig')
 
 const prompt = inquirer.createPromptModule() // creando un prompt
+const config = configSetUp({logging: s => debug(s), setup: true}) // setup: true para borrar la informació histórica cada vez que llamamos a setup.js
 
 async function setup () {
 

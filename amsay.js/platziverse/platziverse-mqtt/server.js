@@ -5,18 +5,20 @@ const mosca = require('mosca')
 const redis = require('redis')
 const chalk = require('chalk')
 const db = require('platziverse-db')
-const config = require('../config')
+const configSetUp = require('../defaultConfig')
 
 const backend = {
   type: 'redis',
   redis,
-  return_buffers: true // así la información viene binaria y la va a poder transmitir mucho más fácil
+  return_buffers: true
 }
 
 const settings = {
-  port: 1883,
+  port: 8083,
   backend
 }
+
+const config = configSetUp({logging: s => debug(s), setup: false}) 
 
 /*
 const config = {
@@ -25,28 +27,33 @@ const config = {
   password: process.env.DB_PASS || 'platzi',
   host: process.env.DB_HOST || 'localhost',
   dialect: 'postgres',
-  loggin: s => debug(s),
-  operatorsAliases:false // peratorsAliases: Sequelize.Op 
+  logging: s => debug(s)
 }
 */
 
 const server = new mosca.Server(settings)
 
-server.on('clientConnected', client => { // cuando el cliente se conecta al servidor
+let Agent, Metric
+
+server.on('clientConnected', client => {
   debug(`Client Connected: ${client.id}`)
 })
 
-server.on('clientDisconnected', client => { // cuando el cliente se disconecta del servidor
+server.on('clientDisconnected', client => {
   debug(`Client Disconnected: ${client.id}`)
 })
 
-server.on('published', (packet, client) => { // cuando se publica en el servidor
+server.on('published', (packet, client) => {
   debug(`Received: ${packet.topic}`)
   debug(`Payload: ${packet.payload}`)
 })
 
-/* mosca.Server es un event emitter, es decir que vamos a poder agregar funciones y agregar listener cuando el servidor lance eventos (estos ventos serán cuando el servidor esté listo o corriendo) */
-server.on('ready', () => {
+server.on('ready', async () => {
+  const services = await db(config).catch(handleFatalError)
+
+  Agent = services.Agent
+  Metric = services.Metric
+
   console.log(`${chalk.green('[platziverse-mqtt]')} server is running`)
 })
 
@@ -58,6 +65,5 @@ function handleFatalError (err) {
   process.exit(1)
 }
 
-// UNA MUY BUENA PRÁCTICA DE DESARROLLO CON NODE JS:
-process.on('uncaughtException', handleFatalError) // Esto pasa a nivel del proceso, si se lanza alguna exepción, es mejor manejarla en alguna parte, en este caso handleFatalError 
-process.on('unhandledRejection', handleFatalError) // cuando no se maneja el rejection de una promesa, se debe pasar un manejador de errores
+process.on('uncaughtException', handleFatalError)
+process.on('unhandledRejection', handleFatalError)
