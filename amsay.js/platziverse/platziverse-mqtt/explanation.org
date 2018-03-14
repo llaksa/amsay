@@ -6,3 +6,15 @@ MQTT, en el caso del servidor que vamos a crear, funcionaría como un "message b
 
 MQTT está pensado para clientes con limitaciones en ancho de banda, cpu, memoria, es decir con capacidades de red muy limitadas.
 
+
+Para instalar redis-server en caso haya problemas con redis al momento de levantar el servidor:
+
+https://redis.io/topics/quickstart
+
+para levantar el server:
+
+$ redis-server
+
+$ npm run start-dev
+
+se necesita instalar un cliente mqtt: sudo "npm i -g mqtt", luego "npx mqtt -v" (npx nos permite instalar paquetes de npm de forma temporal q)

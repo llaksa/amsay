@@ -1,8 +1,10 @@
 'use strict'
 
-console.log(process.argv)
+const conf = {
+    a: 'a',
+    b: 'b',
+    c: 3,
+    d: 'd4'
+}
 
-
-console.log(process.argv.filter(flag => {
-    return (flag.toLowerCase()) === '--y' || '--yes'
-}))
+module.exports = conf

@@ -4,6 +4,7 @@ const debug = require('debug')('platziverse:db:setup') // Para tener mensajes de
 const inquirer = require('inquirer') // Para añadir prompts
 const chalk = require('chalk') // Para dar colores, aquí usado para darle colores a los errores
 const db = require('./') // lo mismo que './index.js'
+const config = require('../config')
 
 const prompt = inquirer.createPromptModule() // creando un prompt
 
@@ -30,6 +31,7 @@ async function setup () {
         }
     }
 
+    /*
     const config = {
         database: process.env.DB_NAME || 'platziverse',
         username: process.env.DB_USER || 'platzi',
@@ -37,9 +39,10 @@ async function setup () {
         host: process.env.DB_HOST || 'localhost',
         dialect: 'postgres',
         loggin: s => debug(s),
-        setup: true,
-        operatorsAliases:false // peratorsAliases: Sequelize.Op 
+        setup: true, // para borrar la informació histórica cada vez que llamamos a setup.js
+        operatorsAliases: false // peratorsAliases: Sequelize.Op 
     }
+    */
 
     // await db(config).catch(handleFatalError)
     await db(config).catch(handleFatalError)
