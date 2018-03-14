@@ -1,0 +1,28 @@
+{
+  "name": "platziverse-mqtt",
+  "version": "1.0.0",
+  "private": true,
+  "description": "A Simple IoT Platform - MQTT Server",
+  "main": "server.js",
+  "scripts": {
+    "start": "NODE_ENV=production node server.js",
+    "start-dev": "DEBUG=platziverse:* nodemon server.js",
+    "lint": "standard"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/llaksa/amsay/tree/master/amsay.js/platziverse/platziverse-mqtt"
+  },
+  "author": "yo no",
+  "license": "MIT",
+  "devDependencies": {
+    "nodemon": "^1.17.2",
+    "standard": "^11.0.0"
+  },
+  "dependencies": {
+    "chalk": "^2.3.2",
+    "debug": "^3.1.0",
+    "mosca": "^2.8.0",
+    "redis": "^2.8.0"
+  }
+}
