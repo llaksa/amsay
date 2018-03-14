@@ -8,16 +8,26 @@ const db = require('./') // lo mismo que './index.js'
 const prompt = inquirer.createPromptModule() // creando un prompt
 
 async function setup () {
-    const answer = await prompt([
-        {
-            type: 'confirm',
-            name: 'setup',
-            message: 'This will destroy your database, are you sure?'
-        }
-    ])
 
-    if (!answer.setup) {
-        return console.log('Nothing happened :)')
+    const yesFlag = process.argv.filter(flag => {
+        return (flag.toLowerCase()) === '--y' || (flag.toLowerCase() === '--yes')
+    })[0]
+
+    //console.log(process.argv)
+    //console.log(yesFlag)
+
+    if (!yesFlag) {
+        const answer = await prompt([
+            {
+                type: 'confirm',
+                name: 'setup',
+                message: 'This will destroy your database, are you sure?'
+            }
+        ])
+
+        if (!answer.setup) {
+            return console.log('Nothing happened :)')
+        }
     }
 
     const config = {

@@ -1,0 +1,8 @@
+Este módulo va a ser un servidor encargado de recibir los mensajes de los agentes de monitoreo y redistribuirlos a aquellos usuarios que van a estar escuchando esos mensajes.
+
+MQTT es un protocolo Pub/Sub en el que se va a poder definir ciertos tópics (cuáles son los tipos y estructuras de los mensajes que podemos enviar) y el servidor va a ser el encargado de recibirlos y almacenarlos en la base de datos para que queden de manera persistente y redistribuirlos a los usuarios que estan conectados al servidor.
+
+MQTT, en el caso del servidor que vamos a crear, funcionaría como un "message broker" es decir un intermediario que se encargará de recibir un mensaje y redistribuírlo a los que estén conectado al message broker.
+
+MQTT está pensado para clientes con limitaciones en ancho de banda, cpu, memoria, es decir con capacidades de red muy limitadas.
+
