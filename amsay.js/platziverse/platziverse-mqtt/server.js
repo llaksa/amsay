@@ -10,7 +10,7 @@ const configSetUp = require('../defaultConfig')
 const backend = {
   type: 'redis',
   redis,
-  return_buffers: true
+  return_buffers: true // así la información viene binaria y la va a poder transmitir mucho más fácil
 }
 
 const settings = {
@@ -35,20 +35,23 @@ const server = new mosca.Server(settings)
 
 let Agent, Metric
 
-server.on('clientConnected', client => {
+server.on('clientConnected', client => {  // cuando el cliente se conecta al servidor
   debug(`Client Connected: ${client.id}`)
 })
 
-server.on('clientDisconnected', client => {
+server.on('clientDisconnected', client => { // cuando el cliente se disconecta del servidor
   debug(`Client Disconnected: ${client.id}`)
 })
 
-server.on('published', (packet, client) => {
+server.on('published', (packet, client) => { // cuando se publica en el servidor
   debug(`Received: ${packet.topic}`)
   debug(`Payload: ${packet.payload}`)
 })
 
+/* mosca.Server es un event emitter, es decir que vamos a poder agregar funciones y agregar listener cuando el servidor lance eventos (estos ventos serán cuando el servidor esté listo o corriendo) */
 server.on('ready', async () => {
+  // como la funcion de configurción de la base de datos resuleve a una promsea podemos usar async await (en el callback de este bloque) para hacerlo más fácil
+  // es por esto que, dado que aquí es donde se inicializa el servidor mqtt
   const services = await db(config).catch(handleFatalError)
 
   Agent = services.Agent
@@ -65,5 +68,6 @@ function handleFatalError (err) {
   process.exit(1)
 }
 
-process.on('uncaughtException', handleFatalError)
-process.on('unhandledRejection', handleFatalError)
+// UNA MUY BUENA PRÁCTICA DE DESARROLLO CON NODE JS:
+process.on('uncaughtException', handleFatalError) // Esto pasa a nivel del proceso, si se lanza alguna exepción, es mejor manejarla en alguna parte, en este caso handleFatalError 
+process.on('unhandledRejection', handleFatalError) // cuando no se maneja el rejection de una promesa, se debe pasar un manejador de errores
