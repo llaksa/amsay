@@ -11,10 +11,24 @@ Para instalar redis-server en caso haya problemas con redis al momento de levant
 
 https://redis.io/topics/quickstart
 
-para levantar el server:
+*** para levantar el server:
 
 $ redis-server
 
 $ npm run start-dev
 
-se necesita instalar un cliente mqtt: sudo "npm i -g mqtt", luego "npx mqtt -v" (npx nos permite instalar paquetes de npm de forma temporal q)
+*** se necesita instalar un cliente mqtt: 
+
+$ sudo npm i -g mqtt, 
+
+otra opción es "npx mqtt -v" (npx nos permite instalar paquetes de npm de forma temporal hasta que se apague la pc)
+
+*** para entrar al gestor de base de datos sql: pqsl
+
+$ psql -U <username> <database-name>
+
+to exit:
+
+\quit
+
+

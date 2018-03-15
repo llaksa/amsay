@@ -7,6 +7,8 @@ const chalk = require('chalk')
 const db = require('platziverse-db')
 const configSetUp = require('../defaultConfig')
 
+const { parsePayload } = require('./utils')
+
 const backend = {
   type: 'redis',
   redis,
@@ -14,11 +16,11 @@ const backend = {
 }
 
 const settings = {
-  port: 8083,
+  port: 1883, // 1883 es el puerto por defecto de mqttJS, por eso configuramos a moscaJS con ese puerto 
   backend
 }
 
-const config = configSetUp({logging: s => debug(s), setup: false}) 
+const config = configSetUp({logging: s => debug(s), setup: false})
 
 /*
 const config = {
@@ -32,20 +34,108 @@ const config = {
 */
 
 const server = new mosca.Server(settings)
+// implementar la persistencia de los mensajes en la base de datos
+// Referencia de los agentes que tenemos conectados
+const clients = new Map()
 
 let Agent, Metric
 
-server.on('clientConnected', client => {  // cuando el cliente se conecta al servidor
+server.on('clientConnected', client => { // cuando el cliente se conecta al servidor
   debug(`Client Connected: ${client.id}`)
+  clients.set(client.id, null)
 })
 
-server.on('clientDisconnected', client => { // cuando el cliente se disconecta del servidor
+server.on('clientDisconnected', async client => { // cuando el cliente se disconecta del servidor
   debug(`Client Disconnected: ${client.id}`)
+  const agent = clients.get(clients.id)
+
+  if (agent) {
+    // Mark Agent as Disconnected
+    agent.connected = false
+
+    try {
+      await Agent.createOrUpdate(agent)
+    } catch (e) {
+      handleError(e)
+    }
+
+    // Delete Agent from Clients List
+    clients.delete(client.id)
+
+    server.publish({
+      topic: 'agent/disconnected',
+      payload: JSON.stringify({
+        agent: {
+          uuid: agent.uuid
+        }
+      })
+    })
+    debug(`Client (${client.id}) associated to Agent (${agent.uuid}) marked as disconnected`)
+  }
 })
 
-server.on('published', (packet, client) => { // cuando se publica en el servidor
+server.on('published', async (packet, client) => { // cuando se publica en el servidor y se usa async porque usamos a "Agent" que es resultado de una función asíncrona
   debug(`Received: ${packet.topic}`)
-  debug(`Payload: ${packet.payload}`)
+
+  switch (packet.topic) {
+    case 'agent/connected':
+    case 'agent/disconnected':
+      debug(`Payload: ${packet.payload}`)
+      break
+    case 'agent/message':
+      debug(`Payload: ${packet.payload}`)
+      const payload = parsePayload(packet.payload)
+
+      if (payload) {
+        payload.agent.connected = true
+
+        let agent
+        try {
+          agent = await Agent.createOrUpdate(payload.agent)
+        } catch (e) {
+          return handleError(e)
+        }
+        debug(`Agent ${agent.uuid} saved`)
+
+        // Notify Agent is Connected
+        if (!clients.get(client.id)) {
+          clients.set(client.id, agent)
+          server.publish({
+            topic: 'agent/connected',
+            payload: JSON.stringify({
+              agent: {
+                uuid: agent.uuid,
+                name: agent.name,
+                hostname: agent.hostname,
+                pid: agent.pid,
+                connected: agent.connected
+              }
+            })
+          })
+        }
+
+        // Store Metrics
+        for (let metric of payload.metrics) { // un for of es como un foreach pero que soporta async await
+          let m
+
+          // RETO 3: cambiar el try y catch con promesas
+          m = new Promise((resolve, rejection) => {
+            resolve(Metric.create(agent.uuid, metric))
+          }).catch(e => handleError(e))
+
+          /*
+          try {
+            m = await Metric.create(agent.uuid, metric)
+          } catch (e) {
+            return handleError(e)
+          }
+          */
+
+          debug(`Metric ${m.id} saved on agent ${agent.uuid}`)
+        }
+      }
+      break
+  }
 })
 
 /* mosca.Server es un event emitter, es decir que vamos a poder agregar funciones y agregar listener cuando el servidor lance eventos (estos ventos serán cuando el servidor esté listo o corriendo) */
@@ -68,6 +158,11 @@ function handleFatalError (err) {
   process.exit(1)
 }
 
+function handleError (err) {
+  console.error(`${chalk.red('error')} ${err.messaege}`)
+  console.error(err.stack)
+}
+
 // UNA MUY BUENA PRÁCTICA DE DESARROLLO CON NODE JS:
-process.on('uncaughtException', handleFatalError) // Esto pasa a nivel del proceso, si se lanza alguna exepción, es mejor manejarla en alguna parte, en este caso handleFatalError 
+process.on('uncaughtException', handleFatalError) // Esto pasa a nivel del proceso, si se lanza alguna exepción, es mejor manejarla en alguna parte, en este caso handleFatalError
 process.on('unhandledRejection', handleFatalError) // cuando no se maneja el rejection de una promesa, se debe pasar un manejador de errores
