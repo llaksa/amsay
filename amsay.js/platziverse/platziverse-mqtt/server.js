@@ -5,9 +5,9 @@ const mosca = require('mosca')
 const redis = require('redis')
 const chalk = require('chalk')
 const db = require('platziverse-db')
-const configSetUp = require('../defaultConfig')
+const configSetUp = require('../platziverse-common/defaultConfig')
 
-const { parsePayload } = require('./utils')
+const { parsePayload } = require('../platziverse-common/utils')
 
 const backend = {
   type: 'redis',

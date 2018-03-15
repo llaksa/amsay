@@ -1,0 +1,7 @@
+Este módulo es un custom event emmiter
+
+tiene una implementación de un cliente MQTT, que sirve para publicar métricas cuando el agente está conectado y para recibir información del servidor MTT de otros clientes
+
+el módulo debug también nos sirve para tener logging
+
+aquí tenemos al módulo mqtt como una dependencia porque la idea es ya no usar el módulo mqtt que se instaló de forma global
