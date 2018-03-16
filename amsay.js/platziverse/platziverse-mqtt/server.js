@@ -5,20 +5,9 @@ const mosca = require('mosca')
 const redis = require('redis')
 const chalk = require('chalk')
 const db = require('platziverse-db')
+
 const configSetUp = require('../platziverse-common/defaultConfig')
-
 const { parsePayload } = require('../platziverse-common/utils')
-
-const backend = {
-  type: 'redis',
-  redis,
-  return_buffers: true // así la información viene binaria y la va a poder transmitir mucho más fácil
-}
-
-const settings = {
-  port: 1883, // 1883 es el puerto por defecto de mqttJS, por eso configuramos a moscaJS con ese puerto 
-  backend
-}
 
 const config = configSetUp({logging: s => debug(s), setup: false})
 
@@ -33,6 +22,17 @@ const config = {
 }
 */
 
+const backend = {
+  type: 'redis',
+  redis,
+  return_buffers: true // así la información viene binaria y la va a poder transmitir mucho más fácil
+}
+
+const settings = {
+  port: 1883, // 1883 es el puerto por defecto de mqttJS, por eso configuramos a moscaJS con ese puerto
+  backend
+}
+
 const server = new mosca.Server(settings)
 // implementar la persistencia de los mensajes en la base de datos
 // Referencia de los agentes que tenemos conectados
@@ -45,9 +45,9 @@ server.on('clientConnected', client => { // cuando el cliente se conecta al serv
   clients.set(client.id, null)
 })
 
-server.on('clientDisconnected', async client => { // cuando el cliente se disconecta del servidor
+server.on('clientDisconnected', async (client) => { // cuando el cliente se disconecta del servidor
   debug(`Client Disconnected: ${client.id}`)
-  const agent = clients.get(clients.id)
+  const agent = clients.get(client.id)
 
   if (agent) {
     // Mark Agent as Disconnected
@@ -56,7 +56,7 @@ server.on('clientDisconnected', async client => { // cuando el cliente se discon
     try {
       await Agent.createOrUpdate(agent)
     } catch (e) {
-      handleError(e)
+      return handleError(e)
     }
 
     // Delete Agent from Clients List
@@ -84,6 +84,7 @@ server.on('published', async (packet, client) => { // cuando se publica en el se
       break
     case 'agent/message':
       debug(`Payload: ${packet.payload}`)
+
       const payload = parsePayload(packet.payload)
 
       if (payload) {
@@ -95,6 +96,7 @@ server.on('published', async (packet, client) => { // cuando se publica en el se
         } catch (e) {
           return handleError(e)
         }
+
         debug(`Agent ${agent.uuid} saved`)
 
         // Notify Agent is Connected
@@ -119,17 +121,15 @@ server.on('published', async (packet, client) => { // cuando se publica en el se
           let m
 
           // RETO 3: cambiar el try y catch con promesas
-          m = new Promise((resolve, rejection) => {
-            resolve(Metric.create(agent.uuid, metric))
-          }).catch(e => handleError(e))
+          // m = new Promise((resolve, rejection) => {
+          //  resolve(Metric.create(agent.uuid, metric))
+          // }).catch(e => handleError(e))
 
-          /*
           try {
             m = await Metric.create(agent.uuid, metric)
           } catch (e) {
             return handleError(e)
           }
-          */
 
           debug(`Metric ${m.id} saved on agent ${agent.uuid}`)
         }
@@ -141,7 +141,7 @@ server.on('published', async (packet, client) => { // cuando se publica en el se
 /* mosca.Server es un event emitter, es decir que vamos a poder agregar funciones y agregar listener cuando el servidor lance eventos (estos ventos serán cuando el servidor esté listo o corriendo) */
 server.on('ready', async () => {
   // como la funcion de configurción de la base de datos resuleve a una promsea podemos usar async await (en el callback de este bloque) para hacerlo más fácil
-  // es por esto que, dado que aquí es donde se inicializa el servidor mqtt
+  // es por esto que, dado que aquí es donde se inicializa el servidor mqt
   const services = await db(config).catch(handleFatalError)
 
   Agent = services.Agent
@@ -159,10 +159,14 @@ function handleFatalError (err) {
 }
 
 function handleError (err) {
-  console.error(`${chalk.red('error')} ${err.messaege}`)
+  console.error(`${chalk.red('[error]')} ${err.message}`)
   console.error(err.stack)
 }
 
 // UNA MUY BUENA PRÁCTICA DE DESARROLLO CON NODE JS:
 process.on('uncaughtException', handleFatalError) // Esto pasa a nivel del proceso, si se lanza alguna exepción, es mejor manejarla en alguna parte, en este caso handleFatalError
 process.on('unhandledRejection', handleFatalError) // cuando no se maneja el rejection de una promesa, se debe pasar un manejador de errores
+
+// este archivo:
+// le pasa una configuración al módulo de platziverse-db logrando conectarse a una base de datos sql con los modelos Agent y Metric que tienen métodos para hacer queries más simples
+// el módulo mosca nos permiter escuchar el puerto de un cliente mqtt para captar los mensajes y redistribuirlos, es decir, es un servidor(que se puede configurar con redis o mongo) escuchando eventos para realizar acciones rspecto de agentes conectados al servidor

@@ -119,3 +119,6 @@ class PlatziverseAgent extends EventEmitter {
 }
 
 module.exports = PlatziverseAgent
+
+// este archivo:
+// genera un objeto que es un emisor de eventos que va notificar métricas y también va recibir mensages de otros agentes (o sea será un cliente que reciba y emita mensajes) conectados al servidor platziverse-mqtt

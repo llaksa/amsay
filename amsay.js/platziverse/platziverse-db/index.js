@@ -33,11 +33,23 @@ module.exports = async function (config) {
     await sequelize.sync({ force: true })
   }
 
-  const Agent = setupAgent(AgentModel) // Creando la tabla agent con métodos para hacer queries
-  const Metric = setupMetric(MetricModel, AgentModel) // creando la tabla metric con los métodos para hacer queries
+  const Agent = setupAgent(AgentModel) // Creando métodos para hacer queries de forma más fácil en la tabla/modelo/etc "Agent"
+  const Metric = setupMetric(MetricModel, AgentModel) // creando métodos para hacer queries de forma más fácil en la tabla/modelo/etc "Metric"
 
   return {
     Agent, // Agent: Agent,
     Metric // Metric: Metric
   }
 }
+
+// este archivo:
+
+// crea el objeto sequelize que creará la base de datos sql: db.js
+
+// permite que sequelize cree el modelo/tabla/etc de Agent en la database: models/agent.js
+// crea métodos personalizados para hacer queries más fáciles a la base de datos: lib/agent.js
+
+// permite que sequelze cree el modelo/tabla/etc de Metric en la database: models/metric.js
+// crea métodos personalizados para hacer queries más fáciles a la base de datos: lib/metric.js
+
+// retorna los objetos Metric y Agent con métodos para poder hacer consultas WRITE/READ a la database
