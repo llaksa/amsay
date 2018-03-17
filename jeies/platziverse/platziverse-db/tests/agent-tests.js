@@ -4,7 +4,7 @@ const test = require('ava') // Un test runner: para crear pruebas unitarias
 const sinon = require('sinon')
 const proxyquire = require('proxyquire') // nos permite sobrescribir las funciones obtenidas con require('some-library'), es decir, sobreescribir los modelos para poder hacer las pruebas
 
-const agentFixture = require('./fixtures/agent')
+const agentFixture = require('../../platziverse-common/tests/fixtures/agent')
 
 // definiendo un archivo de configuración por defecto
 // el cuál no quiero que haga una conexión real a la base de datos

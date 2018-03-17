@@ -9,7 +9,7 @@ const db = require('platziverse-db')
 const configSetUp = require('../platziverse-common/defaultConfig')
 const { parsePayload } = require('../platziverse-common/utils')
 
-const config = configSetUp({logging: s => debug(s), setup: false})
+const config = configSetUp({logging: s => debug(s), setup: false}).db
 
 /*
 const config = {

@@ -7,7 +7,7 @@ const db = require('./') // lo mismo que './index.js'
 const configSetUp = require('../platziverse-common/defaultConfig')
 
 const prompt = inquirer.createPromptModule() // creando un prompt
-const config = configSetUp({logging: s => debug(s), setup: true}) // setup: true para borrar la informació histórica cada vez que llamamos a setup.js
+const config = configSetUp({logging: s => debug(s), setup: true}).db // setup: true para borrar la informació histórica cada vez que llamamos a setup.js
 
 async function setup () {
     // to receive flags from console (i. e. -- --yes)
