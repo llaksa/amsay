@@ -2,14 +2,15 @@
 
 const debug = require('debug')('platziverse:api:routes')
 const express = require('express')
-const asyncify = require('express-asyncify') // express no soporta funciones asíncronas, por ese debemos requerir este módulo
-const auth = require('express-jwt') // vamos a asegurar ruta por ruta con esto
+const expAsyncify = require('express-asyncify') // express no soporta funciones asíncronas, por ese debemos requerir este módulo
+const expJwt = require('express-jwt') // vamos a asegurar ruta por ruta con esto
+const guard = require('express-jwt-permissions')() // permite reconocer los permisos de nuestro JWT
 const db = require('platziverse-db')
-const setupConfig = require('../platziverse-common/defaultConfig')
+const configSetup = require('../platziverse-common/defaultConfig')
 
-const conf = setupConfig({loggin: s => debug(s)}).db
+const config = configSetup({loggin: s => debug(s)})
 
-const api = asyncify(express.Router())
+const api = expAsyncify(express.Router())
 
 let services, Agent, Metric
 
@@ -18,7 +19,7 @@ api.use('*', async (req, res, next) => {
   if (!services) {
     debug('Connecting to database')
     try {
-      services = await db(conf)
+      services = await db(config.db)
     } catch (e) {
       return next(e)
     }
@@ -35,12 +36,25 @@ api.use('*', async (req, res, next) => {
 // recordar que el middleware api acepta en sus métodos get(), post(), etc... como primer argumento a la ruta y como último argumento al handler de la ruta (callback con (req, res, next)); pero podemos poner tantos otros callbacks entre ellos como queramos 
 // en este caso usaremos un callback intermedio para usarlo con con express-jwt
 
-api.get('/agents', auth(config.auth), async (req, res, next) => {
+// expJwt permite usar la palabra secreta desde config.auth para comparar con JWT y darnos o no la autorización
+api.get('/agents', expJwt(config.auth), async (req, res, next) => {
   debug('A request was maked')
+
+  console.log(req)
+  // el token (para un username) generado por jwt debe ponerse en el header de autorización en el request http, por eso se envía en el la variable "req"
+  const { user } = req
+
+  if (!user || !user.username) {
+    return next(new Error('Not authorized'))
+  }
 
   let agents = []
   try {
-    agents = await Agent.findConnected()
+    if (user.admin) {
+      agents = await Agent.findConnected() // si el usuario es admin, se muestra todos los agentes conectados
+    } else {
+      agents = await Agent.findByUsername(user.username) // si ingresa un no admin, se muestra el agente que tiene como username, el username del token dado en la petición
+    }
   } catch (e) {
     return next(e)
   }
@@ -48,7 +62,9 @@ api.get('/agents', auth(config.auth), async (req, res, next) => {
   res.send(agents)
 })
 
-api.get('/agent/:uuid', async (req, res, next) => { // ":uuid" means: some URL parameter que podemos usar en el backend. EL argumento "next" no es obligatorio, pero en este caso sí lo usamos
+// ":uuid" means: some URL parameter que podemos usar en el backend. EL argumento "next" no es obligatorio, pero en este caso sí lo usamos
+// en este caso llamamos a nuestros permisos metrics:read pero los podemos llamar como queramos
+api.get('/agent/:uuid', expJwt(config.auth), guard.check(['metrics:read']) ,async (req, res, next) => { 
   const { uuid } = req.params
 
   debug(`request to /agent/${uuid}`)

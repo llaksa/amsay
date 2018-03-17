@@ -22,6 +22,7 @@
     "express": "^4.16.3",
     "express-asyncify": "^1.0.0",
     "express-jwt": "^5.3.1",
+    "express-jwt-permissions": "^1.1.0",
     "jsonwebtoken": "^8.2.0",
     "platziverse-db": "file:../platziverse-db"
   },

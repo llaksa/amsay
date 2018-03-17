@@ -10,7 +10,7 @@ const defaultConfig = {
         operatorsAliases: false // operatorsAliases: Sequelize.Op 
     },
     auth: {
-        secret: process.env.SECRET
+        secret: process.env.SECRET || 'platzi'
     }
 }
 
