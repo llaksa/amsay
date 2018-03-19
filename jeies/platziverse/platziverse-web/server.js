@@ -4,12 +4,15 @@ const debug = require('debug')('platziverse:web')
 const http = require('http')
 const path = require('path') // permite tener rutas dinámicas y es compatible tanto en linux, mac o windows
 const express = require('express')
+const expAsyncify = require('express-asyncify')
 const socketio = require('socket.io')
 const chalk = require('chalk')
 const platziverseAgent = require('platziverse-agent')
 
+const proxy = require('./proxy')
+const { pipe } = require('../platziverse-common/utils')
 const port = process.env.PORT || 8080
-const app = express()
+const app = expAsyncify(express())
 const server = http.createServer(app)
 const agent = new platziverseAgent()
 
@@ -20,6 +23,13 @@ const agent = new platziverseAgent()
 const io = socketio(server)
 
 app.use(express.static(path.join(__dirname, 'public'))) // __dirname = carpeta actual
+
+// esta es la base da las rutas para el proxy http
+app.use('/', proxy)
+
+// cada vez que hagan una petición a esa ruta, luego un cliente http va a volver a hacer la petición pero esta vez a la api
+
+
 
 // socket.io / websockets
 // cada vez que un cliente se conecte a un servidor de websockets, este evento se va a ejecutar y nos va a devolver un socket (que es un object)
@@ -39,6 +49,9 @@ io.on('connect', socket => {
     }, 2000)
     */
 
+    pipe(agent, socket)
+
+    /*
     agent.on('agent/message', payload => {
         socket.emit('agent/message', payload)
     })
@@ -50,6 +63,18 @@ io.on('connect', socket => {
     agent.on('agent/disconnected', payload => {
         socket.emit('agent/disconnected', payload)
     })
+    */
+})
+
+// Express error handler
+app.use((err, req, res, next) => { // el objeto "next" simepre va a estar presente en el middleware
+  debug(`Error: ${err.message}`)
+
+  if (err.message.match(/not found/)) { // para otros tipos de errores podemos hacer algo así (en este caso un error 404)
+    return res.status(404).send({ error: err.message }) // return aquí para evitar el else
+  }
+
+  res.status(500).send({error: err.message}) // por defecto si llega un error, vamos a devolver un server error, que es un objeto JSON con el mensaje de error (es una respuesta típica de un API)
 })
 
 function handleFatalError (err) {

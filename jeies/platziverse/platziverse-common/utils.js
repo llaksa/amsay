@@ -13,6 +13,21 @@ function parsePayload (payload) {
   return payload
 }
 
+function pipe (source, target) { // para que cada uno de los eventos del agent de monitoreo sea redistribuido a socket.io sin tener que agregar listeners por cada uno de los eventos
+  if (!source.emit || !target.emit) {
+    throw TypeError(`Please pass EventEmmiter's as arguments`)
+  }
+
+  const emit = source._emit = source.emit
+
+  source.emit = function () {
+    emit.apply(source, arguments)
+    target.emit.apply(target, arguments)
+    return source
+  }
+}
+
 module.exports = {
-  parsePayload
+  parsePayload,
+  pipe
 }

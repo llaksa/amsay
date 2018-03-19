@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <!-- requeriendo la librería de socket.io, esto lo monta automáticamente la integración de socket.io con express, no debemos descargar nada -->
+    <script type="text/javascript" src="/socket.io/socket.io.js"></script>
+    <title>Platziverse</title>
+</head>
+<body>
+    <h1>Platziverse</h1>
+    <script type="text/javascript">
+    // vamos a obtener un socket de la conexión de socket io que tenemos aquí
+    var socket = io()
+
+    socket.on('agent/message', function (payload) {
+        console.log('agent/message', payload)
+    })
+
+    socket.on('agent/connected', function (payload) {
+        console.log('agent/connected', payload)
+    })
+
+    socket.on('agent/disconnected', function (payload) {
+        console.log('agent/disconnected', payload)
+    })
+
+    /* EJEMPLO DEMOSTRATIVO
+    setTimeout(function () {
+        socket.emit('agent/message', 'hello server')
+    }, 2000)
+    */
+    </script>
+</body>
+</html>
