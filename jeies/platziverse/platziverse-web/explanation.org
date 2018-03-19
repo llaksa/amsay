@@ -1,0 +1,50 @@
+* DEPLOY:
+
+*** Dependencias
+
+ANSIBLE nos permite no tener que instalar de nuevo redis, postgresql, etc en el servidor de producción.
+
+- *postgresql*
+sudo ansible-galaxy install ANXS.postgresql
+
+- *redis*
+sudo ansible-galaxy install geerlingguy.redis
+
+- *NGINX*
+sudo ansible-galaxy install jdauphant.nginx
+
+*** Files organization
+
+*1. Creando carpeta deploy*
+
+Vamos a tener todos los scripts y carpetas con los que vamos a trabajar
+
+mkdir platziverse-deploy
+
+*2. Creando los roles (así lo define ANSIBLE)*
+
+- Creando el rol de base de datos: 
+
+Es quien va a instalar postgresql y redis, y configurar la base de datos solamente la primera vez. NO quien va a configurar la base de datos.
+
+mkdir database
+
+Luego, para definir qué dependencias tiene nuestro rol: 
+
+cd database
+
+En este caso, nosotros dependemos de postgres y redis:
+
+mkdir meta
+touch meta/main.yml
+
+Para sobreescribir las variables que proporciona ANSIBLE.GALAXY para sobreescribir la base de datos:
+
+mkdir vars
+touch vars/main.yml
+
+Y otro directorio donde se van a ejecutar las tareas después que se corra el rol (reinicie el servicio de postgresql, copie cierta información al servidor, etc):
+
+mkdir tasks
+touch tasks/main.yml
+

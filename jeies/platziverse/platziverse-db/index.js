@@ -1,5 +1,6 @@
 'use strict'
 
+require('longjohn') // expande nuestro stacktracer (log de errores) ... SOLO USAR EN AMBIENTES DE DESAORROLLO
 const setupDatabase = require('./lib/db') // jala un objeto sequelize (con una configuración dada como parámetro) y lo crea en caso no exista
 const setupAgentModel = require('./models/agent') // jala el objeto sequelize (con la configuración dada como parámetro) correspondiente a la entidad agent
 const setupMetricModel = require('./models/metric') // jala el objeto sequelize (con la configuración dada como parámetro) correspondiente a la entidad metric

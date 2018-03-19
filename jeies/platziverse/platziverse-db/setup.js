@@ -3,14 +3,31 @@
 const debug = require('debug')('platziverse:db:setup') // Para tener mensajes de error a colores con el strign "platziverse:db:setup"
 const inquirer = require('inquirer') // Para añadir prompts
 const chalk = require('chalk') // Para dar colores, aquí usado para darle colores a los errores
+const minimist = require('minimist')
 const db = require('./') // lo mismo que './index.js'
 const configSetUp = require('../platziverse-common/defaultConfig')
 
+const args = minimist(process.argv)
 const prompt = inquirer.createPromptModule() // creando un prompt
 const config = configSetUp({logging: s => debug(s), setup: true}).db // setup: true para borrar la informació histórica cada vez que llamamos a setup.js
 
 async function setup () {
-    // to receive flags from console (i. e. -- --yes)
+  if (!args.yes) {
+    const answer = await prompt([
+      {
+        type: 'confirm',
+        name: 'setup',
+        message: 'This will destroy your database, are you sure?'
+      }
+    ])
+
+    if (!answer.setup) {
+      return console.log('Nothing happened :)')
+    }
+  }
+
+  /* Irvin's challenge n° 2
+  // to receive flags from console (i. e. -- --yes)
   const yesFlag = process.argv.filter(flag => {
     return (flag.toLowerCase()) === '--y' || (flag.toLowerCase() === '--yes')
   })[0]
@@ -28,6 +45,7 @@ async function setup () {
       return console.log('Nothing happened :)')
     }
   }
+  */
 
     /*
     const config = {
@@ -43,6 +61,7 @@ async function setup () {
     */
 
     // await db(config).catch(handleFatalError)
+
   await db(config).catch(handleFatalError)
 
   console.log('Succes!')
