@@ -1,5 +1,17 @@
 * DEPLOY:
 
+*** Creando los scripts
+
+revisar archivos de la carpeta!
+
+entre ellos están:
+
+los playhook
+
+backend.yml
+
+frontend.yml
+
 *** Dependencias
 
 ANSIBLE nos permite no tener que instalar de nuevo redis, postgresql, etc en el servidor de producción.
@@ -50,4 +62,57 @@ touch tasks/main.yml
 
 *** Creando un servidor virtual (virtual machine) con Vagrant
 
-vagrant init
+Install VirtulBox
+
+https://wiki.debian.org/VirtualBox
+
+Iniciar vagrant y establecerlo con una imagen de ubuntu16.04(o buscar otars imágenes en la web de vagrant):
+
+vagrant init ubuntu/xenial64
+
+vagrant up
+
+Crear un directorio llamado ssh
+
+mkdir ssh
+
+ejecutar el siguiente comando con el tipo de algoritmo rsa y con el comentario “irvin.jair.pg@gmail.com-deploy“
+
+ssh-keygen -t rsa -C "irvin.jair.pg@gmail.com - deploy"
+
+para guardar la llave no como id_rsa, sino como el file deploy
+
+Enter file in which to save the key (/home/llaksa/.ssh/id_rsa): deploy
+
+Ejecutar el siguiente comando para conectarse a la máquina virtual corriendo (en este caso ubuntu/xenial64)
+
+vagrant ssh
+
+comprobar versión de la virtual machine
+
+uname -a
+
+ANSIBLE va a realizar el deploy con el protocolo ssh, de esta manera no va a necesitar nigún agente instalado en el servidor
+por eso se le debe dar permisos al usuario para que no le pida contraseña, por eso se crea la llave ssh
+en este caso, configuraremos al usuario root para que tenga la llave pública y nosotros podremos conectarnos usando la llave privada
+
+Para darle permisos a ANSIBLE para conectarse al servidor sin contraseña, vamos a usar al llave ssh anterior:
+
+sudo su
+cd .ssh
+ls
+
+se espera ver que existe el archivo authorized_keys
+aquí se van a poder pegar múltiples llaves públicas y cualquier persona que tenga una llave privada que haga match con cualquiera de esas llaves públicas va a poder conectarse a la VM
+
+sudo vim authorized_keys
+
+luego salir de la VM y ejecutar:
+
+ssh root@127.0.0.1 -p 2222 -i ssh/deploy
+
+salimos de la mv y hacemos el despliegue ejecutando en la terminal desde un nivel arriba de la carpeta ssh:
+
+ansible-playbook -i inventory.init backend.yml –-private-key ssh/deploy
+
+se van a ejecutar las tareas ( en este caso, python, redis, postgres, etc)
