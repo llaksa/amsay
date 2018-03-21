@@ -1,12 +1,12 @@
 'use strict'
 
-const debug = require('debug')('platziverse:agent')
-const os = require('os')
-const util = require('util') // para convertir un callback en promesa
-const mqtt = require('mqtt') // recordar que este cliente usa el puerto 1883 por default
-const defaults = require('defaults')
-const uuid = require('uuid')
 const EventEmitter = require('events')
+const debug        = require('debug')('platziverse:agent')
+const os           = require('os')
+const util         = require('util') // para convertir un callback en promesa
+const mqtt         = require('mqtt') // recordar que este cliente usa el puerto 1883 por default
+const defaults     = require('defaults')
+const uuid         = require('uuid')
 
 const { parsePayload } = require('../platziverse-common/utils')
 
@@ -24,11 +24,11 @@ class PlatziverseAgent extends EventEmitter {
     super()
 
     this._options = defaults(opts, options)
-    this._started = false
-    this._timer = null
-    this._client = null
-    this._agentId = null
-    this._metrics = new Map()
+    this._started = false // estado de conexión o desconexión del agente
+    this._timer   = null  // 
+    this._client  = null  // el dominio usado por el broker mqtt
+    this._agentId = null  // un uuid random
+    this._metrics = new Map() // guardar los valores de las métricas en pares key: value
   }
 
   addMetric (type, fn) {
@@ -61,8 +61,8 @@ class PlatziverseAgent extends EventEmitter {
                 uuid: this._agentId,
                 username: opts.username,
                 name: opts.name,
-                hostname: os.hostname() || 'localhost',
-                pid: process.pid
+                hostname: os.hostname() || 'localhost', // os.hostname: 'HorsePowercito'
+                pid: process.pid // Ppid: process Identifier
               },
               metrics: [],
               timestamp: new Date().getTime()

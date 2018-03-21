@@ -4,7 +4,7 @@ const debug = require('debug')('platziverse:mqtt')
 const mosca = require('mosca')
 const redis = require('redis')
 const chalk = require('chalk')
-const db = require('platziverse-db')
+const db    = require('platziverse-db')
 
 const configSetUp = require('../platziverse-common/defaultConfig')
 const { parsePayload } = require('../platziverse-common/utils')
@@ -23,7 +23,7 @@ const config = {
 */
 
 const backend = {
-  type: 'redis',
+  type: 'redis', // el broker usa un redis server para guardar los datos en caché
   redis,
   return_buffers: true // así la información viene binaria y la va a poder transmitir mucho más fácil
 }
