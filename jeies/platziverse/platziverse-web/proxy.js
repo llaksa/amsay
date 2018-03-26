@@ -92,6 +92,3 @@ api.get('/metrics/:uuid/:type', async (req, res, next) => {
 })
 
 module.exports = api
-
-// este archivo:
-// cuando hagan una petición a agents vamos a hacer una petición a la api y retornarlo al cliente que pidó la ruta al inicio

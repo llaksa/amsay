@@ -28,7 +28,6 @@ const request = require('request-promise-native')
 const moment = require('moment')
 const randomColor = require('random-material-color')
 const LineChart = require('./line-chart')
-const { serverHost } = require('../config.js')
 
 module.exports = {
   name: 'metric',
@@ -57,7 +56,7 @@ module.exports = {
 
       const options = {
         method: 'GET',
-        url: `${serverHost}/metrics/${uuid}/${type}`,
+        url: `http://localhost:8080/metrics/${uuid}/${type}`,
         json: true
       }
 

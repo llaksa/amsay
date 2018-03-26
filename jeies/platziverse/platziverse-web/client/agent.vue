@@ -75,7 +75,6 @@
 
 <script>
 const request = require('request-promise-native')
-const { serverHost } = require('../config.js')
 
 module.exports = {
   props: [ 'uuid', 'socket' ],
@@ -102,7 +101,7 @@ module.exports = {
 
       const options = {
         method: 'GET',
-        url: `${serverHost}/agent/${uuid}`,
+        url: `http://localhost:8080/agent/${uuid}`,
         json: true
       }
 
@@ -127,7 +126,7 @@ module.exports = {
 
       const options = {
         method: 'GET',
-        url: `${serverHost}/metrics/${uuid}`,
+        url: `http://localhost:8080/metrics/${uuid}`,
         json: true
       }
 
