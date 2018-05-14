@@ -8,7 +8,7 @@ const chalk = require('chalk')
 
 const api = require('./api')
 
-const port = process.env.PORT || 5000
+const port = process.env.PORT || 3000
 const app = asyncify(express())
 const server = http.createServer(app)
 
@@ -42,3 +42,6 @@ if (!module.parent) { // el if devuelve falso (se ignora el código de adentro) 
 }
 
 module.exports = server
+
+
+// En el puerto "port" se levanta un servidor para una API, que será cosumida por el módulo web corriendo en otro puerto

@@ -92,7 +92,8 @@ server.on('published', async (packet, client) => { // cuando se publica en el se
 
         let agent
         try {
-          agent = await Agent.createOrUpdate(payload.agent)
+          agent = aw
+ait Agent.createOrUpdate(payload.agent)
         } catch (e) {
           return handleError(e)
         }
@@ -170,3 +171,6 @@ process.on('unhandledRejection', handleFatalError) // cuando no se maneja el rej
 // este archivo:
 // le pasa una configuración al módulo de platziverse-db logrando conectarse a una base de datos sql con los modelos Agent y Metric que tienen métodos para hacer queries más simples
 // el módulo mosca nos permiter escuchar el puerto de un cliente mqtt para captar los mensajes y redistribuirlos, es decir, es un servidor(que se puede configurar con redis o mongo) escuchando eventos para realizar acciones rspecto de agentes conectados al servidor
+
+
+// Levanta un servidor MQTT y está conectado a nuestra base de datos

@@ -92,3 +92,5 @@ api.get('/metrics/:uuid/:type', async (req, res, next) => {
 })
 
 module.exports = api
+
+// Esta es una api que me permite consumir la API real :P ! 
