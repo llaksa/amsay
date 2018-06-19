@@ -1,3 +1,0 @@
-*** Los fixtures son un set de fake data o de test data
-
-*** uso de mocks y stubs para probar las funcionalidades
