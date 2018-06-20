@@ -1,3 +1,7 @@
 * amsay
 
-Hasten to swim in magic
+Jupyter notebooks to practice:
+
+- OOP
+- Promises
+- 
